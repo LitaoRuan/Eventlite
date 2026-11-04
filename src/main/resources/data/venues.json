@@ -1,0 +1,18 @@
+[
+    {
+        "id" : 1,
+        "name" : "Kilburn Building",
+        "capacity" : 120,
+        "address" : "Oxford Road, Manchester M13 9PL",
+        "latitude" : 0.0,
+        "longitude" : 0.0
+    },
+    {
+    	"id" : 2,
+    	"name" : "Online",
+    	"capacity" : 100000,
+        "address" : "Virtual Event, London SW1A 1AA",
+        "latitude" : 0.0,
+        "longitude" : 0.0
+    }
+]

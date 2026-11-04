@@ -1,0 +1,92 @@
+body {
+  padding-top: 100px;
+  background: #ffffff;
+  font-family: 'Verdana', sans-serif;
+  color: #333;
+}
+
+div {
+  padding: 0;
+  background: transparent;
+  max-width: 100%;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+form {
+  border-radius: 2px;
+  padding-bottom: 20px;
+  padding-top: 20px;
+}
+
+a:link {
+  text-decoration: none;
+}
+
+input, select, textarea {
+	border-radius: 2px;
+	padding: 10px;
+	margin: 5px 0;
+	width: 90%;
+	display: inline-block;
+	border: 1px solid #FFFAFA;
+}
+
+input[type=hidden] {
+	padding: 0;
+	margin: 0;
+}
+
+.navbar {
+	
+}
+
+button {
+	background-color: #800000;
+	
+}
+
+.btn {
+	background-color: #AF9B8D;
+
+}
+
+.btn-primary {
+	background-color: #BC8F8F;
+}
+
+.btn-primary, .btn, button {
+	color: #FFFAFA;
+	padding: 10px 15px;
+	border: none;
+	border-radius: 2px;
+	transition: background-color 0.3s;
+	text-align: center;
+	display: inline-block;
+	
+}
+
+.btn-primary, button {
+	padding: 10px 15px;
+}
+
+.btn-primary:hover, .btn:hover, button:hover{
+	background-color: #A0C0C0;
+}
+
+.btn.btn-sm {
+	padding: 0.25rem 0.5rem;
+	font-size: 0.875rem;
+}
+
+footer {
+  text-align: center;
+  color: #666;
+  border-top: 1px solid #eee;
+}
+
+html {
+  background: #ffffff;
+  overscroll-behavior: none;
+}

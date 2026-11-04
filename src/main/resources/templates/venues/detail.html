@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+
+<head>
+    <title>Venue Details</title>
+    <link rel="stylesheet" href="../../css/default.css" th:href="@{/css/default.css}">
+    <style>
+        .venue-detail h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0e8e4;
+        }
+        .venue-actions { margin-bottom: 30px; }
+    </style>
+</head>
+
+<body>
+<div layout:fragment="content">
+<div class="venue-detail">
+
+    <h1 class="mt-4" th:text="${venue.name}">Venue Name</h1>
+
+    <p>
+        <strong>Address:</strong><br>
+        <span th:text="${venue.address}">Address</span>
+    </p>
+
+    <p>
+        <strong>Capacity:</strong>
+        <span th:text="${venue.capacity}">0</span>
+    </p>
+
+    <h2 class="mt-4">Events coming up...</h2>
+
+    <div th:if="${#lists.isEmpty(events)}">
+        <p>No upcoming events.</p>
+    </div>
+
+    <div th:each="event : ${events}" class="mb-3">
+        <p class="mb-0"><strong th:text="${event.name}">Event Name</strong></p>
+        <p class="mb-0 text-muted">
+            <span th:text="${{event.date}}">Date</span> at <span th:text="${{event.time}}">Time</span>
+        </p>
+        <p class="mb-0"><span th:text="${event.venue.name}">Venue Name</span></p>
+    </div>
+
+    <div class="venue-actions mt-4 d-flex gap-2 flex-wrap align-items-center">
+        <a class="btn btn-primary" role="button" th:href="${backUrl}">
+            <i class="fa-solid fa-arrow-left"></i> Back
+        </a>
+        <a class="btn btn-primary" role="button" th:href="@{/venues/{id}/edit(id=${venue.id},returnTo=${backUrl})}" sec:authorize="isAuthenticated()">
+            <i class="fa-solid fa-pen-to-square"></i> Edit
+        </a>
+        <form th:action="@{/venues/{id}(id=${venue.id})}" th:object="${venue}" method="post" class="mb-0 d-inline" sec:authorize="isAuthenticated()">
+            <input type="hidden" name="_method" value="delete" />
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-trash"></i> Delete
+            </button>
+        </form>
+    </div>
+
+    <p th:if="${error}" th:text="${error}" style="color:red;" class="mt-3"></p>
+
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+<head>
+  <title th:text="${event.name}">Event Details</title>
+  <link rel="stylesheet" href="../../css/default.css" th:href="@{/css/default.css}">
+  <script src='https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css' rel='stylesheet' />
+  <style>
+    .venue-detail h1 {
+      font-size: 2rem; font-weight: 700; color: #222;
+      margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #f0e8e4;
+    }
+    .venue-actions { margin-bottom: 20px; }
+    /* Map */
+    .mapboxgl-marker, .mapboxgl-marker * { background-color: transparent !important; background: none !important; border: none !important; box-shadow: none !important; }
+    #map { width: 100%; height: 400px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 30px; }
+    .mapboxgl-ctrl-top-left, .mapboxgl-ctrl-top-right, .mapboxgl-ctrl-bottom-left, .mapboxgl-ctrl-bottom-right { display: none !important; }
+    .mapboxgl-popup { background: transparent !important; border: none !important; box-shadow: none !important; max-width: none !important; }
+    .mapboxgl-popup-tip { display: none !important; }
+    .mapboxgl-popup-content { background-color: #ffffff !important; padding: 10px 30px 10px 15px !important; border-radius: 6px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.15) !important; text-align: center !important; font-family: Verdana, sans-serif !important; }
+    .mapboxgl-popup-close-button { font-size: 18px !important; color: #888 !important; background: transparent !important; border: none !important; padding: 4px 8px !important; right: 0 !important; top: 0 !important; }
+  </style>
+</head>
+
+<body>
+<div layout:fragment="content">
+  <div class="venue-detail">
+    
+   
+    <div th:if="${ok_message}" class="alert alert-success mt-3" role="alert">
+        <i class="fa-solid fa-circle-check"></i> <span th:text="${ok_message}"></span>
+    </div>
+
+    <h1 class="mt-4" th:text="${event.name}">Event Name</h1>
+
+    <p>
+      <strong>Venue:</strong><br>
+      <span th:if="${event.venue != null}">
+        <a th:href="@{/venues/{id}(id=${event.venue.id},returnTo=${venueReturnTo})}" th:text="${event.venue.name}">Venue</a>
+      </span>
+      <span th:if="${event.venue == null}">No venue</span>
+    </p>
+
+    <p><strong>Date:</strong> <span th:text="${{event.date}}">Date</span></p>
+    <p><strong>Time:</strong> <span th:text="${{event.time}}">Time</span></p>
+
+    <p th:if="${event.description != null and !event.description.isEmpty()}">
+      <strong>Description:</strong><br>
+      <span th:text="${event.description}">Description text</span>
+    </p>
+
+    
+    <div class="venue-actions mt-4 d-flex gap-2 flex-wrap align-items-center">
+      <a class="btn btn-primary" role="button" th:href="${backUrl}">
+			<i class="fa-solid fa-arrow-left"></i> Back
+	  </a>
+      <a class="btn btn-primary" role="button" th:href="@{/events/{id}/edit(id=${event.id},returnTo=${backUrl})}" sec:authorize="isAuthenticated()">
+			<i class="fa-solid fa-pen-to-square"></i> Edit
+	  </a>
+      <form th:action="@{/events/{id}(id=${event.id})}" method="post" class="mb-0 d-inline" sec:authorize="isAuthenticated()">
+        <input type="hidden" name="_method" value="delete" />
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-trash"></i> Delete</button>
+      </form>
+    </div>
+    <div class="card bg-light mb-4 p-3 border-0">
+      <form th:action="@{/events/{id}/share(id=${event.id})}" method="post" class="mb-0">
+        <label for="mastodonMessage" class="form-label fw-bold">Share to Mastodon:</label>
+        <div class="input-group">
+       
+          <input type="text" id="mastodonMessage" name="message" class="form-control" 
+                 th:value="'Join us for ' + ${event.name} + ' on ' + ${event.date} + '!'" required>
+          <button type="submit" class="btn btn-primary" style="background-color: #2b90d9; border-color: #2b90d9;">
+            <i class="fa-brands fa-mastodon"></i> Post
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+
+  <div id="map-section" style="display: none;">
+    <h2 class="mt-4">Location</h2>
+    <div id='map'></div>
+  </div>
+
+  <script th:inline="javascript">
+    mapboxgl.accessToken = 'YOUR_MAPBOX_PUBLIC_TOKEN';
+    
+ 
+    var hasVenue = /*[[${event.venue != null}]]*/ false;
+    var lng = /*[[${event.venue != null ? event.venue.longitude : 0.0}]]*/ 0.0;
+    var lat = /*[[${event.venue != null ? event.venue.latitude : 0.0}]]*/ 0.0;
+    var eventName = /*[[${event.name}]]*/ 'Event';
+    var eventTime = /*[[${event.time}]]*/ 'Time';
+
+    if (hasVenue && lng !== 0.0 && lat !== 0.0) {
+      document.getElementById('map-section').style.display = 'block';
+      var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [lng, lat], zoom: 15
+      });
+      var popupText = '<strong style="font-size:15px;color:#111;display:block;margin-bottom:3px;">' + eventName + '</strong>' +
+                      '<span style="font-size:13px;color:#555;display:block;">Starts at ' + eventTime + '</span>';
+      var popup = new mapboxgl.Popup({ offset: 25, anchor: 'bottom' }).setHTML(popupText);
+      new mapboxgl.Marker({ color: '#5cb8d2' }).setLngLat([lng, lat]).setPopup(popup).addTo(map);
+    }
+  </script>
+</div>
+</body>
+</html>
